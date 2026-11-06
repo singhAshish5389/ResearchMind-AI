@@ -1,0 +1,106 @@
+# ============================================================
+# ResearchMind AI – Docker Compose
+# ============================================================
+# Runs the complete ResearchMind AI stack locally.
+#
+# Services:
+#   - backend:    FastAPI app (port 8000)
+#   - frontend:   React + Vite dev server (port 5173)
+#   - postgres:   PostgreSQL 16 (port 5432)
+#   - qdrant:     Qdrant vector database (port 6333)
+#
+# Usage:
+#   docker compose up --build
+#   docker compose up -d          # Detached mode
+#   docker compose down -v        # Stop and remove volumes
+# ============================================================
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: researchmind-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: researchmind
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d researchmind"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Qdrant Vector DB ────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:v1.12.0
+    container_name: researchmind-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6333/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend (FastAPI) ───────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: researchmind-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override DATABASE_URL and QDRANT_URL to use Docker service names
+      DATABASE_URL: postgresql+psycopg://postgres:password@postgres:5432/researchmind
+      QDRANT_URL: http://qdrant:6333
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    volumes:
+      - ./backend/app:/app/app  # Hot-reload in dev (mount source)
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Frontend (React + Vite) ─────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: researchmind-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src  # Hot-reload in dev
+
+# ── Named Volumes ───────────────────────────────────────────────────────────
+volumes:
+  postgres-data:
+    driver: local
+  qdrant-data:
+    driver: local

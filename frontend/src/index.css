@@ -1,0 +1,202 @@
+/**
+ * ResearchMind AI – Global CSS
+ * =============================
+ * Sets up Tailwind directives and global base styles.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base Reset & Typography ─────────────────────────────────────────────── */
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface text-slate-100 font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-500;
+  }
+}
+
+/* ── Component Utilities ──────────────────────────────────────────────────── */
+
+@layer components {
+  /* Glass morphism card */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 
+           bg-primary-600 hover:bg-primary-500 
+           text-white font-semibold rounded-xl 
+           transition-all duration-200 
+           shadow-glow-sm hover:shadow-glow
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5
+           bg-white/10 hover:bg-white/20 
+           text-slate-100 font-semibold rounded-xl 
+           border border-white/20 hover:border-white/30
+           transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2
+           text-slate-400 hover:text-slate-100
+           hover:bg-white/5 rounded-lg
+           transition-all duration-200;
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full px-4 py-3 
+           bg-surface-300 border border-white/10 
+           hover:border-primary-500/50 focus:border-primary-500 
+           rounded-xl text-slate-100 placeholder-slate-500
+           outline-none transition-all duration-200
+           focus:ring-2 focus:ring-primary-500/20;
+  }
+
+  /* Select field */
+  .select-field {
+    @apply input-field cursor-pointer appearance-none;
+  }
+
+  /* Status badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-success/20 text-emerald-300;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning/20 text-amber-300;
+  }
+
+  .badge-danger {
+    @apply badge bg-danger/20 text-red-300;
+  }
+
+  .badge-info {
+    @apply badge bg-info/20 text-blue-300;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary-500/20 text-primary-300;
+  }
+
+  .badge-gray {
+    @apply badge bg-white/10 text-slate-300;
+  }
+
+  /* Section heading */
+  .section-title {
+    @apply text-xl font-bold text-slate-100;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-white/10;
+  }
+
+  /* Agent step indicator */
+  .agent-step {
+    @apply flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10;
+  }
+
+  .agent-step-active {
+    @apply agent-step border-primary-500/50 bg-primary-500/10;
+  }
+
+  .agent-step-done {
+    @apply agent-step border-success/30 bg-success/5;
+  }
+}
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  /* Gradient text utility */
+  .gradient-text {
+    @apply text-transparent bg-clip-text;
+    background-image: linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #7c3aed 100%);
+  }
+
+  /* Glow text */
+  .glow-text {
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+  }
+
+  /* Loading shimmer effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
+}
